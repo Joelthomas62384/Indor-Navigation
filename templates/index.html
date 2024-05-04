@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="text-gray-400 bg-gray-900 body-font min-h-screen">
+    <div class="container px-5 py-24 mx-auto flex flex-wrap items-center">
+      <div class="lg:w-3/5 md:w-1/2 md:pr-16 lg:pr-0 pr-0">
+        <img class="object-cover object-center rounded" alt="hero" id="hero" src="{% static "assets/image.jpeg" %}">
+        <div class="flex h-[50px] justify-around item-center my-4">
+        <p class="mt-[25px] pl-[30px] text-white" id="route">The route will come here</p>
+        <div class="mx-auto">
+            <img id='soundBtn' class="w-7 hover:cursor-pointer " onclick="toggleImage()" src="{% static "assets/mic.png" %}" alt="">
+        </div>
+        </div>
+      </div>
+      <div class="lg:w-2/6 md:w-1/2 bg-gray-800 bg-opacity-50 rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0">
+        <h2 class="text-white text-lg font-medium title-font mb-5">Enter From and To <span class="text-[red]" id="commonwarn"></span></h2> 
+        <div class="relative mb-4">
+            <form >
+          <label for="from" class="leading-7 text-sm text-gray-400">From</label> <span id="fromwarn" class="text-[red]"></span>
+          <input type="text" id="from"  name="from" autocomplete="off" class="w-full bg-gray-600 bg-opacity-20 focus:bg-transparent focus:ring-2 focus:ring-blue-900 rounded border border-gray-600 focus:border-blue-500 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"> 
+        </div>
+        <div class="relative mb-4">
+          <label for="to" class="leading-7 text-sm text-gray-400">To</label> <span id="towarn" class="text-[red]"></span>
+          <input type="text" id="to"  name="to" autocomplete="off" class="w-full bg-gray-600 bg-opacity-20 focus:bg-transparent focus:ring-2 focus:ring-blue-900 rounded border border-gray-600 focus:border-blue-500 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+        </div>
+        <button id="subBtn" class="text-white bg-blue-500 border-0 py-2 px-8 focus:outline-none hover:bg-blue-600 rounded text-lg">Button</button>
+    </form>
+      </div>
+    </div>
+  </section>
+
+{% endblock content %}
+
+{% block scripts %}
+
+<script>
+    let soundBtn = document.getElementById('soundBtn')
+
+    async function fetchImage(fromValue, toValue) {
+    try {
+        const response = await fetch(`get-route?start_node_name=${fromValue.toUpperCase()}&end_node_name=${toValue.toUpperCase()}`);
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        
+        
+        return data;
+    } catch (error) {
+        throw new Error("Error fetching image:", error);
+    }
+}
+let currentUtterance = null;
+
+function speak(text, speed = 1, voice = null) {
+    const speechSynthesis = window.speechSynthesis;
+    if (speechSynthesis) {
+        cancelSpeech(); // Cancel any ongoing speech
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = speed;
+
+        if (voice) {
+            const voices = speechSynthesis.getVoices();
+            const selectedVoice = voices.find(v => v.name === voice);
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            } else {
+                console.error(`Voice "${voice}" not found.`);
+            }
+        }
+
+        utterance.onend = () => {
+            // Handle speech ended event
+            soundBtn.src = '{% static "assets/mic.png" %}'; 
+            
+            soundBtn.classList.remove('w-12')
+            soundBtn.classList.add('w-7')
+        };
+        
+        currentUtterance = utterance; // Assign the current utterance
+        speechSynthesis.speak(utterance);
+    } else {
+        console.error("Speech synthesis not supported by the browser.");
+    }
+}
+
+function cancelSpeech() {
+    const speechSynthesis = window.speechSynthesis;
+    if (speechSynthesis && currentUtterance) {
+        speechSynthesis.cancel();
+        currentUtterance = null; // Reset the current utterance
+    }
+}
+
+    let from = document.getElementById('from');
+    let to = document.getElementById('to'); 
+    let subBtn = document.getElementById('subBtn');
+    let hero = document.getElementById('hero')
+    let sound = "No Data Available"
+  
+    let commonwarn = document.getElementById('commonwarn');
+    let regex = /^\d+$/; 
+
+    subBtn.onclick = async (e)=>{
+        e.preventDefault();
+        if (from.value == "" || to.value == "" ){
+            commonwarn.innerHTML = "  **Please Fill The Form"
+            setTimeout(function() {
+        commonwarn.innerHTML = "";
+    }, 3000); 
+        }
+       
+        else{
+            try {
+            let data = await fetchImage(from.value, to.value);
+            console.log(data);
+
+         
+            hero.src = await `static/navigation_images/${data.image_filename}`
+            sound = ""
+            sound = data.directions.join(", then, ")
+            sound += ", Thank You"
+            route.innerHTML = sound 
+            
+        } catch (error) {
+            console.error("Error fetching image:", error);
+        }
+        }
+
+    }
+
+
+    function toggleImage() {
+        let soundBtn = document.getElementById('soundBtn')
+        if (soundBtn.src.endsWith('mic.png')) {
+            soundBtn.src = '{% static "assets/sound.gif" %}'; 
+            speak(sound)
+           
+            soundBtn.classList.remove('w-7')
+            soundBtn.classList.add('w-12')
+        } else {
+            soundBtn.src = '{% static "assets/mic.png" %}'; 
+            
+            soundBtn.classList.remove('w-12')
+            soundBtn.classList.add('w-7')
+            cancelSpeech()
+        }
+    }
+
+
+</script>
+{% endblock scripts %}

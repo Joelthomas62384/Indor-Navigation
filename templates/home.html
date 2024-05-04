@@ -1,0 +1,37 @@
+{% extends "base2.html" %}
+
+
+{% block content %}
+
+
+<div class="container">
+    <div class="title">Let's Find and Move</div>
+    <div class="subtitle">Find your way indoors</div>
+    <div class="button-container">
+        <a href="front1.html" class="view-floors">View Floors</a>
+    </div>
+    <form action="{% url "preview" %}" method="get" >
+    <div class="input-container">       
+
+
+         <input type="text" autocomplete="off" name = "start_node_name" id="currentLocationInput" placeholder="Current location">
+        <div class="dropdown" id="currentLocationDropdown">
+            <!-- Dropdown items will be inserted here dynamically -->
+            
+        </div>
+    </div>
+     <div class="input-container">
+        <input type="text" name = "end_node_name" autocomplete="off" id="destinationInput" placeholder="Destination">
+        <div class="dropdown" id="destinationDropdown">
+            <!-- Dropdown items will be inserted here dynamically -->
+        </div>
+    </div>
+    <div class="button-container">
+         <button class="search-icon" type="submit" id="searchButton">&#128269;</button>
+    </div>
+</form>
+
+</div>
+{% endblock content %}
+
+

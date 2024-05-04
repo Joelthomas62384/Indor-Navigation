@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Image Interface</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        background-color: #070C32;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .image-wrapper {
+        width: 900px;
+        height: 600px;
+        border: 2px solid #ccc;
+        border-radius: 10px;
+        overflow: hidden;
+        
+
+    }
+
+    .image-wrapper img {
+        width: 100%;
+        height: 100%;
+        {% comment %} object-fit: cover; {% endcomment %}
+    }
+    
+</style>
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body>
+
+<div class="container flex">
+    <div class="image-wrapper">
+        <img src="static/navigation_images/{{image_filename}}" alt="Your Image">
+    </div>
+    
+</div>
+<div class=" flex container" style="height:10vh;">
+    <div class="w-12">
+    <img id='soundBtn' class="w-7 hover:cursor-pointer " onclick="toggleImage()" src="{% static "assets/mic.png" %}" alt="">
+</div>
+ <p class="mx-4 text-white">{{directions}}</p>
+</div>
+
+{% block scripts %}
+
+<script>
+    let soundBtn = document.getElementById('soundBtn')
+
+    
+
+let currentUtterance = null;
+
+function speak(text, speed = 1, voice = null) {
+    const speechSynthesis = window.speechSynthesis;
+    if (speechSynthesis) {
+        cancelSpeech(); // Cancel any ongoing speech
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = speed;
+
+        if (voice) {
+            const voices = speechSynthesis.getVoices();
+            const selectedVoice = voices.find(v => v.name === voice);
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            } else {
+                console.error(`Voice "${voice}" not found.`);
+            }
+        }
+
+        utterance.onend = () => {
+            // Handle speech ended event
+            soundBtn.src = '{% static "assets/mic.png" %}'; 
+            
+            soundBtn.classList.remove('w-12')
+            soundBtn.classList.add('w-7')
+        };
+        
+        currentUtterance = utterance; // Assign the current utterance
+        speechSynthesis.speak(utterance);
+    } else {
+        console.error("Speech synthesis not supported by the browser.");
+    }
+}
+
+function cancelSpeech() {
+    const speechSynthesis = window.speechSynthesis;
+    if (speechSynthesis && currentUtterance) {
+        speechSynthesis.cancel();
+        currentUtterance = null; // Reset the current utterance
+    }
+}
+
+   
+    let sound = "{{directions}}"
+   
+
+    function toggleImage() {
+        let soundBtn = document.getElementById('soundBtn')
+        if (soundBtn.src.endsWith('mic.png')) {
+            soundBtn.src = '{% static "assets/sound.gif" %}'; 
+            speak(sound)
+           
+            soundBtn.classList.remove('w-7')
+            soundBtn.classList.add('w-12')
+        } else {
+            soundBtn.src = '{% static "assets/mic.png" %}'; 
+            
+            soundBtn.classList.remove('w-12')
+            soundBtn.classList.add('w-7')
+            cancelSpeech()
+        }
+    }
+
+
+</script>
+{% endblock scripts %}
+
+</body>
+</html>
