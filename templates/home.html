@@ -7,12 +7,19 @@
 <div class="container">
     <div class="title">Let's Find and Move</div>
     <div class="subtitle">Find your way indoors</div>
-    <div class="button-container">
-        <a href="front1.html" class="view-floors">View Floors</a>
-    </div>
     <form action="{% url "preview" %}" method="get" >
+    <div class="button-container">
+        <label for="floor1" style="color:white;">Floor One</label>
+        <input type="radio" name="floor" id="floor1" value="0">
+        <label for="floor2"  style="color:white;">Floor Two</label>
+       <input type="radio" name="floor" id="floor2" value="1">
+    </div>
     <div class="input-container">       
 
+        <div class="flex">
+            
+     
+        </div>
 
          <input type="text" autocomplete="off" name = "start_node_name" id="currentLocationInput" placeholder="Current location">
         <div class="dropdown" id="currentLocationDropdown">
@@ -33,5 +40,72 @@
 
 </div>
 {% endblock content %}
+
+{% block scripts %}
+
+<script>
+    document.getElementById('searchButton').addEventListener('click', function() {
+        console.log("Clicked")
+        this.style.transform = 'scale(0.9)'; // Scale down the button when clicked
+        setTimeout(() => {
+            this.style.transform = 'scale(1)'; // Reset button scale after a brief delay
+        }, 300);
+    });
+
+    function setupDropdown(input, dropdown) {
+    input.addEventListener('input', function() {
+        // Show dropdown when user starts typing
+        dropdown.style.display = 'block';
+
+        // Simulate fetching data from server or somewhere else
+        const locations = ['Library', 'Stairs near Library', 'Smart Class', 'Boys common room', 'Tutorial room', 'Pantry',
+        'Professor room', 'Mini hall', 'First aid room', 'Lift1', 'Gents Toilet', 'Class 205', 'Stationary store',
+        'Staff room', 'Tutorial room1', 'Lab House keeping', 'Kitchen', 'Classroom', 'Restaurant', 'Stairs near restaurant','Laboratory', 'Reprographic center', 'Lab-205', 'Office', 'Ground-floorLift', 'System Administrator',
+              'Project lab', 'Language lab', 'Class room', 'Stairs near PG lab', 'Conference room', 'Office',
+              'Meeting room', 'Principal-Conference room', 'Principal office',
+              'Reception', 'Drinking water', 'Stairs opp to documentation','Main Entrance','Entrance-2']; // Example data
+
+        // Get input value
+        const inputText = input.value.toLowerCase();
+
+        // Filter locations based on input text
+        const filteredLocations = locations.filter(location =>
+            location.toLowerCase().includes(inputText)
+        );
+
+        // Sort filtered locations by similarity to input text
+        filteredLocations.sort((a, b) =>
+            a.toLowerCase().indexOf(inputText) - b.toLowerCase().indexOf(inputText)
+        );
+
+        // Clear existing dropdown items
+        dropdown.innerHTML = '';
+
+        // Create and append dropdown items
+        filteredLocations.forEach(function(location) {
+            const dropdownItem = document.createElement('div');
+            dropdownItem.classList.add('dropdown-item');
+            dropdownItem.textContent = location;
+            dropdownItem.addEventListener('click', function() {
+                input.value = location; // Set input value to clicked item
+                dropdown.style.display = 'none'; // Hide dropdown after selection
+            });
+            dropdown.appendChild(dropdownItem);
+        });
+    });
+
+    // Hide dropdown when clicking outside the input
+    document.addEventListener('click', function(event) {
+        if (!input.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+}
+    setupDropdown(document.getElementById('currentLocationInput'), document.getElementById('currentLocationDropdown'));
+    setupDropdown(document.getElementById('destinationInput'), document.getElementById('destinationDropdown'));
+
+</script>
+
+{% endblock scripts %}
 
 

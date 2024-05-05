@@ -96,7 +96,7 @@ def preview(request):
     if request.method == "GET":
         start_node_name = request.GET.get('start_node_name')
         end_node_name = request.GET.get('end_node_name')
-        floor = request.GET.get("floor","0")
+        floor = request.GET.get("floor")
     image_path = r'static\assets\image.jpg' if floor == "1" else r"static\assets\floor0.jpg" 
     node_coordinates = [(45, 233),      #A
                         (93, 195),      #B
